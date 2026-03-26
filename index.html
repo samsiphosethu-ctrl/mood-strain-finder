@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Find Your Strain – Mood</title>
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+ 
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: #ffffff;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+ 
+.widget {
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 32px 24px 28px;
+  background: #ffffff;
+}
+ 
+/* ── Header ─────────────────────────────────────────── */
+.widget-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+ 
+.widget-eyebrow {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #1B3A2F;
+  background: #E8F2EE;
+  border-radius: 20px;
+  padding: 5px 14px;
+  margin-bottom: 14px;
+}
+ 
+.widget-title {
+  font-size: clamp(22px, 5vw, 28px);
+  font-weight: 800;
+  color: #1B3A2F;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+ 
+.widget-sub {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #5a7366;
+  line-height: 1.5;
+}
+ 
+/* ── Step counter ───────────────────────────────────── */
+.step-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 24px;
+}
+ 
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #d0e3db;
+  transition: background 0.3s, transform 0.3s;
+}
+ 
+.dot.active {
+  background: #1B3A2F;
+  transform: scale(1.25);
+}
+ 
+/* ── Question ───────────────────────────────────────── */
+.question-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #8aab9e;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 10px;
+}
+ 
+.question-text {
+  font-size: clamp(16px, 4vw, 19px);
+  font-weight: 700;
+  color: #1B3A2F;
+  text-align: center;
+  margin-bottom: 20px;
+  line-height: 1.35;
+  min-height: 52px;
+}
+ 
+/* ── Option cards ───────────────────────────────────── */
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+ 
+.option-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 14px 18px;
+  border: 2px solid #e0ece7;
+  border-radius: 14px;
+  background: #fafcfb;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+ 
+.option-btn:hover {
+  border-color: #1B3A2F;
+  background: #f0f7f3;
+  transform: translateY(-1px);
+}
+ 
+.option-btn:active {
+  transform: translateY(0px) scale(0.98);
+}
+ 
+.option-btn.selected {
+  border-color: #1B3A2F;
+  background: #1B3A2F;
+}
+ 
+.option-btn.selected .option-label,
+.option-btn.selected .option-desc {
+  color: #ffffff;
+}
+ 
+.option-btn.selected .option-emoji {
+  background: rgba(255,255,255,0.15);
+}
+ 
+.option-emoji {
+  font-size: 22px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #E8F2EE;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+ 
+.option-text {
+  flex: 1;
+}
+ 
+.option-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1B3A2F;
+  display: block;
+  line-height: 1.2;
+  transition: color 0.2s;
+}
+ 
+.option-desc {
+  font-size: 12px;
+  color: #7a9e91;
+  display: block;
+  margin-top: 2px;
+  transition: color 0.2s;
+}
+ 
+/* ── Result card ────────────────────────────────────── */
+.result-card {
+  display: none;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 2px solid #e0ece7;
+}
+ 
+.result-card.visible {
+  display: block;
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+ 
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+ 
+.result-header {
+  padding: 20px 20px 16px;
+  text-align: center;
+}
+ 
+.result-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-radius: 20px;
+  padding: 4px 12px;
+  margin-bottom: 10px;
+  color: #1B3A2F;
+}
+ 
+.result-strain {
+  font-size: clamp(20px, 5vw, 24px);
+  font-weight: 800;
+  color: #1B3A2F;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+}
+ 
+.result-thc {
+  font-size: 12px;
+  color: #7a9e91;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+ 
+.result-body {
+  padding: 0 20px 20px;
+  text-align: center;
+}
+ 
+.result-desc {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #3d5c50;
+  margin-bottom: 16px;
+}
+ 
+.terpene-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+ 
+.terpene-pill {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: #E8F2EE;
+  color: #1B3A2F;
+  letter-spacing: 0.02em;
+}
+ 
+.result-cta {
+  display: block;
+  width: 100%;
+  padding: 14px 20px;
+  background: #1B3A2F;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 12px;
+  text-decoration: none;
+  text-align: center;
+  transition: background 0.2s, transform 0.15s;
+  letter-spacing: 0.01em;
+}
+ 
+.result-cta:hover {
+  background: #264d3e;
+  transform: translateY(-1px);
+}
+ 
+.result-cta:active {
+  transform: translateY(0);
+}
+ 
+/* ── Try again ──────────────────────────────────────── */
+.try-again-row {
+  text-align: center;
+  margin-top: 16px;
+}
+ 
+.try-again-btn {
+  background: none;
+  border: none;
+  font-size: 13px;
+  color: #8aab9e;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: color 0.2s, background 0.2s;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+ 
+.try-again-btn:hover {
+  color: #1B3A2F;
+  background: #f0f7f3;
+}
+ 
+/* ── Progress bar ───────────────────────────────────── */
+.progress-track {
+  height: 3px;
+  background: #e0ece7;
+  border-radius: 2px;
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+ 
+.progress-fill {
+  height: 100%;
+  background: #1B3A2F;
+  border-radius: 2px;
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  width: 0%;
+}
+ 
+/* ── Accents per product ────────────────────────────── */
+.accent-sage   { background: #E8F2E3; }
+.accent-lavender { background: #EDE8F5; }
+.accent-pink   { background: #F5E8EF; }
+ 
+.accent-sage   .result-badge { background: #d0eacc; color: #2a4d20; }
+.accent-lavender .result-badge { background: #ddd5f0; color: #3d2a72; }
+.accent-pink   .result-badge { background: #f0d5e4; color: #6b2045; }
+ 
+/* ── Rating row ─────────────────────────────────────── */
+.rating-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+ 
+.stars {
+  color: #f5a623;
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+ 
+.rating-text {
+  font-size: 12px;
+  color: #7a9e91;
+  font-weight: 600;
+}
+ 
+/* ── Responsive ─────────────────────────────────────── */
+@media (max-width: 420px) {
+  .widget { padding: 24px 16px 20px; }
+  .option-btn { padding: 12px 14px; }
+  .option-emoji { width: 38px; height: 38px; font-size: 18px; }
+}
+</style>
+</head>
+<body>
+ 
+<div class="widget" id="widget">
+ 
+  <div class="widget-header">
+    <span class="widget-eyebrow">Find Your Match</span>
+    <h2 class="widget-title">Which strain fits your mood?</h2>
+    <p class="widget-sub">Three quick picks. One perfect match.</p>
+  </div>
+ 
+  <div class="progress-track">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+ 
+  <div class="step-dots" id="stepDots">
+    <span class="dot active" id="dot-0"></span>
+    <span class="dot" id="dot-1"></span>
+    <span class="dot" id="dot-2"></span>
+  </div>
+ 
+  <!-- Quiz screen -->
+  <div id="quizScreen">
+    <p class="question-label" id="questionLabel">Question 1 of 3</p>
+    <p class="question-text" id="questionText">What are you looking to get out of today?</p>
+    <div class="options" id="optionsContainer"></div>
+  </div>
+ 
+  <!-- Result screen -->
+  <div id="resultScreen" style="display:none;">
+    <div class="result-card" id="resultCard">
+      <div class="result-header" id="resultHeader">
+        <span class="result-badge" id="resultBadge"></span>
+        <p class="result-strain" id="resultStrain"></p>
+        <p class="result-thc" id="resultThc"></p>
+      </div>
+      <div class="result-body">
+        <div class="rating-row">
+          <span class="stars" id="resultStars"></span>
+          <span class="rating-text" id="resultRating"></span>
+        </div>
+        <p class="result-desc" id="resultDesc"></p>
+        <div class="terpene-pills" id="terpenes"></div>
+        <a class="result-cta" id="resultCta" href="#" target="_blank" rel="noopener">Shop This Strain</a>
+      </div>
+    </div>
+    <div class="try-again-row">
+      <button class="try-again-btn" id="tryAgainBtn">Start over</button>
+    </div>
+  </div>
+ 
+</div>
+ 
+<script>
+(function () {
+ 
+  /* ── Data ───────────────────────────────────────────────────────── */
+ 
+  var questions = [
+    {
+      label: "Question 1 of 3",
+      text: "What are you looking to get out of today?",
+      options: [
+        { emoji: "🎯", label: "Sharp focus",      desc: "Get things done, stay in the zone",   value: "focus"  },
+        { emoji: "🌿", label: "Ease into it",      desc: "Relaxed uplift, nothing too intense", value: "calm"   },
+        { emoji: "🥂", label: "Social energy",     desc: "Good vibes, great conversation",      value: "social" }
+      ]
+    },
+    {
+      label: "Question 2 of 3",
+      text: "When are you planning to enjoy it?",
+      options: [
+        { emoji: "☀️", label: "Morning or midday", desc: "Before or during the day",  value: "day"     },
+        { emoji: "🌇", label: "Late afternoon",    desc: "Winding into the evening",   value: "evening" },
+        { emoji: "🌙", label: "Evening",           desc: "Time to switch off",         value: "night"   }
+      ]
+    },
+    {
+      label: "Question 3 of 3",
+      text: "How would you describe your experience level?",
+      options: [
+        { emoji: "🌱", label: "Still finding my feet", desc: "I prefer a gentler start",          value: "new"        },
+        { emoji: "🌿", label: "Getting comfortable",   desc: "I know what I like",                value: "mid"        },
+        { emoji: "🌳", label: "Very familiar",         desc: "Ready for something more expressive", value: "experienced" }
+      ]
+    }
+  ];
+ 
+  /* Strain data */
+  var strains = {
+    "super-lemon-haze": {
+      name:     "Super Lemon Haze",
+      badge:    "Focused Mood",
+      thc:      "26.47% THCa",
+      rating:   "4.66",
+      reviews:  "1,100+",
+      desc:     "A terpinolene-forward strain that supports focus and mental clarity. Bright and energizing, it's a go-to for creative work and productive mornings. Technically a 50:50 hybrid, but its terpene profile makes it feel distinctly sativa-forward. THCa flower will cause a failed drug test.",
+      terpenes: ["Terpinolene", "Beta-Caryophyllene", "Limonene", "Ocimene"],
+      accent:   "accent-sage",
+      url:      "https://mood.com/product/super-lemon-haze"
+    },
+    "tangie": {
+      name:     "Tangie",
+      badge:    "Social Mood",
+      thc:      "28.89% THC",
+      rating:   "4.68",
+      reviews:  "1,400+",
+      desc:     "A limonene-dominant sativa hybrid with a sweet tangerine character. Uplifting and sociable, it's built for afternoons with good company. A potent option best suited to those with a little experience. THCa flower will cause a failed drug test.",
+      terpenes: ["Limonene", "Alpha-Pinene", "Beta-Caryophyllene", "Myrcene"],
+      accent:   "accent-lavender",
+      url:      "https://mood.com/product/tangie"
+    },
+    "tropicana-cherry-cookies": {
+      name:     "Tropicana Cherry Cookies",
+      badge:    "Energized Mood",
+      thc:      "19.50% THC",
+      rating:   "4.45",
+      reviews:  "2,400+",
+      desc:     "A moderate-THC sativa hybrid with a terpene-rich profile. Its bisabolol, linalool, and limonene character makes it one of the most approachable sativa-leaning options in the Mood catalog. A great starting point. THCa flower will cause a failed drug test.",
+      terpenes: ["Bisabolol", "Linalool", "Limonene", "Caryophyllene"],
+      accent:   "accent-pink",
+      url:      "https://mood.com/product/tropicana-cherry-cookies"
+    }
+  };
+ 
+  /* ── Scoring logic ──────────────────────────────────────────────── */
+  /* Maps answer combos to a strain. Priority: experience, then timing, then goal */
+  function pickStrain(answers) {
+    var goal = answers[0];
+    var time = answers[1];
+    var exp  = answers[2];
+ 
+    /* New users always get the gentlest option */
+    if (exp === "new") {
+      return "tropicana-cherry-cookies";
+    }
+ 
+    /* Experienced + focus or daytime focus */
+    if (goal === "focus") {
+      return "super-lemon-haze";
+    }
+ 
+    /* Social or evening + experienced/mid */
+    if (goal === "social") {
+      if (exp === "experienced") {
+        return "tangie";
+      }
+      return "tropicana-cherry-cookies";
+    }
+ 
+    /* Calm / ease-into-it */
+    if (goal === "calm") {
+      if (exp === "experienced" && (time === "evening" || time === "night")) {
+        return "tangie";
+      }
+      return "tropicana-cherry-cookies";
+    }
+ 
+    /* Fallback */
+    return "super-lemon-haze";
+  }
+ 
+  /* ── State ──────────────────────────────────────────────────────── */
+  var currentStep = 0;
+  var answers     = [];
+ 
+  /* ── DOM refs ───────────────────────────────────────────────────── */
+  var progressFill      = document.getElementById("progressFill");
+  var stepDots          = [
+    document.getElementById("dot-0"),
+    document.getElementById("dot-1"),
+    document.getElementById("dot-2")
+  ];
+  var questionLabel     = document.getElementById("questionLabel");
+  var questionText      = document.getElementById("questionText");
+  var optionsContainer  = document.getElementById("optionsContainer");
+  var quizScreen        = document.getElementById("quizScreen");
+  var resultScreen      = document.getElementById("resultScreen");
+  var resultCard        = document.getElementById("resultCard");
+  var resultHeader      = document.getElementById("resultHeader");
+  var resultBadge       = document.getElementById("resultBadge");
+  var resultStrain      = document.getElementById("resultStrain");
+  var resultThc         = document.getElementById("resultThc");
+  var resultStars       = document.getElementById("resultStars");
+  var resultRating      = document.getElementById("resultRating");
+  var resultDesc        = document.getElementById("resultDesc");
+  var terpenesEl        = document.getElementById("terpenes");
+  var resultCta         = document.getElementById("resultCta");
+  var tryAgainBtn       = document.getElementById("tryAgainBtn");
+ 
+  /* ── Helpers ────────────────────────────────────────────────────── */
+  function renderStars(rating) {
+    var full  = Math.floor(parseFloat(rating));
+    var out   = "";
+    for (var i = 0; i < full; i++) out += "★";
+    if (parseFloat(rating) % 1 >= 0.5) out += "½";
+    return out;
+  }
+ 
+  function updateProgress() {
+    var pct = ((currentStep) / questions.length) * 100;
+    progressFill.style.width = pct + "%";
+    stepDots.forEach(function (d, i) {
+      d.className = "dot" + (i === currentStep ? " active" : "");
+    });
+  }
+ 
+  /* ── Render question ────────────────────────────────────────────── */
+  function renderQuestion(index) {
+    var q = questions[index];
+    questionLabel.textContent = q.label;
+    questionText.textContent  = q.text;
+ 
+    optionsContainer.innerHTML = "";
+ 
+    q.options.forEach(function (opt) {
+      var btn = document.createElement("button");
+      btn.className       = "option-btn";
+      btn.setAttribute("aria-label", opt.label + ": " + opt.desc);
+ 
+      btn.innerHTML =
+        '<span class="option-emoji">' + opt.emoji + '</span>' +
+        '<span class="option-text">' +
+          '<span class="option-label">' + opt.label + '</span>' +
+          '<span class="option-desc">'  + opt.desc  + '</span>' +
+        '</span>';
+ 
+      btn.addEventListener("click", function () {
+        /* Flash selected state briefly */
+        var allBtns = optionsContainer.querySelectorAll(".option-btn");
+        allBtns.forEach(function (b) { b.classList.remove("selected"); });
+        btn.classList.add("selected");
+ 
+        setTimeout(function () {
+          answers.push(opt.value);
+          currentStep++;
+ 
+          if (currentStep < questions.length) {
+            updateProgress();
+            renderQuestion(currentStep);
+          } else {
+            updateProgress();
+            showResult();
+          }
+        }, 220);
+      });
+ 
+      optionsContainer.appendChild(btn);
+    });
+  }
+ 
+  /* ── Show result ────────────────────────────────────────────────── */
+  function showResult() {
+    var key    = pickStrain(answers);
+    var strain = strains[key];
+ 
+    /* Populate */
+    resultCard.className   = "result-card";
+    resultHeader.className = "result-header " + strain.accent;
+    resultBadge.textContent  = strain.badge;
+    resultStrain.textContent = strain.name;
+    resultThc.textContent    = strain.thc;
+    resultDesc.textContent   = strain.desc;
+    resultStars.textContent  = renderStars(strain.rating);
+    resultRating.textContent = strain.rating + "/5 from " + strain.reviews + " reviews";
+ 
+    terpenesEl.innerHTML = "";
+    strain.terpenes.forEach(function (t) {
+      var pill = document.createElement("span");
+      pill.className   = "terpene-pill";
+      pill.textContent = t;
+      terpenesEl.appendChild(pill);
+    });
+ 
+    resultCta.href = strain.url;
+ 
+    /* Switch screens */
+    quizScreen.style.display  = "none";
+    resultScreen.style.display = "block";
+ 
+    /* Trigger animation */
+    requestAnimationFrame(function () {
+      resultCard.classList.add("visible");
+    });
+ 
+    /* Hide dots and progress during result */
+    progressFill.style.width = "100%";
+    stepDots.forEach(function (d) { d.classList.remove("active"); });
+  }
+ 
+  /* ── Reset ──────────────────────────────────────────────────────── */
+  function reset() {
+    currentStep = 0;
+    answers     = [];
+ 
+    resultCard.classList.remove("visible");
+    resultScreen.style.display = "none";
+    quizScreen.style.display   = "block";
+ 
+    updateProgress();
+    renderQuestion(0);
+  }
+ 
+  tryAgainBtn.addEventListener("click", reset);
+ 
+  /* ── Init ───────────────────────────────────────────────────────── */
+  updateProgress();
+  renderQuestion(0);
+ 
+  /* ── Auto-resize for iframe ─────────────────────────────────────── */
+  function postHeight() {
+    var h = document.getElementById("widget").scrollHeight + 48;
+    try {
+      window.parent.postMessage({ iframeHeight: h }, "*");
+    } catch (e) {}
+  }
+ 
+  /* Post height on load and on any DOM mutation */
+  window.addEventListener("load", postHeight);
+  if (typeof MutationObserver !== "undefined") {
+    new MutationObserver(postHeight).observe(
+      document.getElementById("widget"),
+      { childList: true, subtree: true, attributes: true }
+    );
+  }
+ 
+})();
+</script>
+ 
+</body>
+</html>
